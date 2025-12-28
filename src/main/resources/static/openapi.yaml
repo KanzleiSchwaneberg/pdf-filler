@@ -23,14 +23,14 @@ paths:
         content:
           application/json:
             schema:
-              \: '#/components/schemas/WohngeldAntragRequestDTO'
+              $ref: '#/components/schemas/WohngeldAntragRequestDTO'
       responses:
         '200':
           description: PDF erstellt
           content:
             application/json:
               schema:
-                \: '#/components/schemas/ApiResponsePdfResult'
+                $ref: '#/components/schemas/ApiResponsePdfResult'
 
   /api/v2/data/sample:
     get:
@@ -121,3 +121,331 @@ paths:
       responses:
         '200':
           description: PDF
+
+components:
+  schemas:
+    WohngeldAntragRequestDTO:
+      type: object
+      required:
+        - antrag
+        - antragsteller
+        - adresse
+        - wohnung
+        - miete
+        - einkommen
+        - bankverbindung
+      properties:
+        antrag:
+          $ref: '#/components/schemas/AntragMetadatenDTO'
+        antragsteller:
+          $ref: '#/components/schemas/AntragstellerDTO'
+        adresse:
+          $ref: '#/components/schemas/AdresseDTO'
+        wohnung:
+          $ref: '#/components/schemas/WohnungDTO'
+        miete:
+          $ref: '#/components/schemas/MieteDTO'
+        einkommen:
+          $ref: '#/components/schemas/EinkommenDTO'
+        bankverbindung:
+          $ref: '#/components/schemas/BankverbindungDTO'
+        zusatzfragen:
+          $ref: '#/components/schemas/ZusatzfragenDTO'
+
+    AntragMetadatenDTO:
+      type: object
+      required:
+        - erstantrag
+      properties:
+        erstantrag:
+          type: boolean
+          default: true
+          description: Application type - true for Erstantrag, false for Weiterleistungsantrag
+        wohngeldnummer:
+          type: string
+          description: Existing Wohngeld number (mandatory for Weiterleistungsantrag)
+        wohngeldAb:
+          type: string
+          description: Date from which Wohngeld is requested (Format TT.MM.JJJJ)
+        antragsdatum:
+          type: string
+          description: Application date (Format TT.MM.JJJJ)
+        formloserAntragDatum:
+          type: string
+          description: Date of informal application if sent earlier
+        einverstaendniserklaerung:
+          type: boolean
+          default: true
+
+    AntragstellerDTO:
+      type: object
+      required:
+        - familienname
+        - vorname
+        - geburtsdatum
+        - geschlecht
+        - familienstand
+        - erwerbsstatus
+      properties:
+        familienname:
+          type: string
+        vorname:
+          type: string
+        geburtsdatum:
+          type: string
+          description: Format TT.MM.JJJJ
+        staatsangehoerigkeit:
+          type: string
+          default: deutsch
+        geschlecht:
+          type: string
+          enum: [MAENNLICH, WEIBLICH, DIVERS]
+        familienstand:
+          type: string
+          enum: [LEDIG, VERHEIRATET, GESCHIEDEN, VERWITWET, GETRENNT_LEBEND, LEBENSPARTNERSCHAFT]
+        erwerbsstatus:
+          type: string
+          enum: [ERWERBSTAETIG, ARBEITSLOS, RENTNER, STUDENT, SCHUELER, SELBSTSTAENDIG, SONSTIGE]
+        geburtsname:
+          type: string
+        geburtsort:
+          type: string
+        telefon:
+          type: string
+        email:
+          type: string
+
+    AdresseDTO:
+      type: object
+      required:
+        - strasse
+        - hausnummer
+        - plz
+        - ort
+      properties:
+        strasse:
+          type: string
+        hausnummer:
+          type: string
+        plz:
+          type: string
+          pattern: '^\d{5}$'
+        ort:
+          type: string
+        bundesland:
+          type: string
+
+    WohnungDTO:
+      type: object
+      required:
+        - wohnflaecheQm
+        - wohnverhaeltnis
+      properties:
+        wohnflaecheQm:
+          type: number
+          format: double
+          minimum: 0
+        wohnverhaeltnis:
+          type: string
+          enum: [HAUPTMIETER, UNTERMIETER, HEIMBEWOHNER, EIGENTUM, SONSTIGE]
+          default: HAUPTMIETER
+        verwandtschaftMitVermieter:
+          type: boolean
+          default: false
+        mietpreisbindung:
+          type: boolean
+          default: false
+        wohnberechtigungsschein:
+          type: boolean
+          default: false
+        einzugsdatum:
+          type: string
+        anzahlRaeume:
+          type: integer
+        baujahr:
+          type: string
+        vermieterName:
+          type: string
+
+    MieteDTO:
+      type: object
+      required:
+        - gesamtmiete
+      properties:
+        gesamtmiete:
+          type: number
+          format: double
+          minimum: 0
+        heizkostenEnthalten:
+          type: boolean
+          default: false
+        heizkosten:
+          type: number
+          format: double
+          default: 0
+        warmwasserEnthalten:
+          type: boolean
+          default: false
+        warmwasserkosten:
+          type: number
+          format: double
+          default: 0
+        sonstigeKosten:
+          type: number
+          format: double
+          default: 0
+        mietaenderung:
+          type: string
+          default: NEIN
+
+    EinkommenDTO:
+      type: object
+      required:
+        - einnahmen
+      properties:
+        einnahmen:
+          type: array
+          items:
+            $ref: '#/components/schemas/EinnahmeDTO'
+          minItems: 1
+        steuern:
+          type: boolean
+          default: false
+        rentenversicherung:
+          type: boolean
+          default: false
+        krankenPflegeversicherung:
+          type: boolean
+          default: true
+
+    EinnahmeDTO:
+      type: object
+      required:
+        - art
+        - bruttoBetrag
+        - turnus
+      properties:
+        art:
+          type: string
+          description: Type of income (e.g., Erwerbsminderungsrente, Gehalt/Lohn)
+        bruttoBetrag:
+          type: number
+          format: double
+          minimum: 0
+        turnus:
+          type: string
+          enum: [MONATLICH, JAEHRLICH, TAEGLICH]
+          default: MONATLICH
+
+    BankverbindungDTO:
+      type: object
+      required:
+        - iban
+        - bankName
+        - kontoinhaberFamilienname
+        - kontoinhaberVorname
+        - kontoinhaberAnschrift
+      properties:
+        iban:
+          type: string
+          pattern: '^[A-Z]{2}[0-9A-Z\s]{13,32}$'
+        bankName:
+          type: string
+        kontoinhaberFamilienname:
+          type: string
+        kontoinhaberVorname:
+          type: string
+        kontoinhaberAnschrift:
+          type: string
+        bic:
+          type: string
+
+    ZusatzfragenDTO:
+      type: object
+      properties:
+        andereWohnungWohngeld:
+          type: boolean
+          default: false
+        zweitwohnsitz:
+          type: boolean
+          default: false
+        haushaltsmitgliedVerstorben:
+          type: boolean
+          default: false
+        haushaltsmitgliederAenderung:
+          type: boolean
+          default: false
+        transferleistungen:
+          type: boolean
+          default: false
+        transferleistungArt:
+          type: string
+          enum: [BUERGERGELD, GRUNDSICHERUNG, ERGAENZENDE_HILFE, ASYLBEWERBERLEISTUNG]
+        transferleistungDatum:
+          type: string
+        aufgefordertZuBeantragen:
+          type: boolean
+          default: false
+        werbungskosten:
+          type: boolean
+          default: false
+        kinderbetreuungskosten:
+          type: boolean
+          default: false
+        schwerbehinderungOderPflege:
+          type: boolean
+          default: false
+        pflegegrad:
+          type: string
+        schwerbehinderungGrad:
+          type: string
+        haeuslichPflegebeduerftig:
+          type: boolean
+          default: false
+        unterhaltAnspruch:
+          type: boolean
+          default: false
+        einmaligeEinnahmen:
+          type: boolean
+          default: false
+        einnahmenAenderung:
+          type: boolean
+          default: false
+        vermoegen:
+          type: boolean
+          default: false
+        vermoegenIstSchmerzensgeld:
+          type: boolean
+          default: false
+        mietaenderungErwartet:
+          type: boolean
+          default: false
+        einverstaendnisKontoauszuege:
+          type: boolean
+          default: true
+
+    PdfResult:
+      type: object
+      properties:
+        outputPath:
+          type: string
+        filename:
+          type: string
+        fieldsFound:
+          type: integer
+        fieldsFilled:
+          type: integer
+
+    ApiResponsePdfResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/PdfResult'
+
+    WohngeldAntragRequestLegacy:
+      type: object
+      description: Legacy request format (deprecated)
