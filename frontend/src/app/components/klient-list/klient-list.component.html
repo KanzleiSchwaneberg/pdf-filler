@@ -1,0 +1,81 @@
+<div class="klient-list">
+  <div class="header">
+    <h1>Klienten</h1>
+    <a routerLink="/klienten/neu" class="btn btn-primary">+ Neuer Klient</a>
+  </div>
+
+  <div class="search-bar">
+    <input
+      type="text"
+      [(ngModel)]="searchQuery"
+      (input)="onSearch()"
+      placeholder="Suchen nach Name oder Ort..."
+      class="search-input"
+    />
+  </div>
+
+  @if (loading) {
+    <div class="loading">Laden...</div>
+  }
+
+  @if (error) {
+    <div class="error">{{ error }}</div>
+  }
+
+  @if (!loading && filteredKlienten.length === 0) {
+    <div class="empty-state">
+      @if (searchQuery) {
+        Keine Klienten gefunden für "{{ searchQuery }}"
+      } @else {
+        Noch keine Klienten vorhanden.
+        <a routerLink="/klienten/neu">Ersten Klienten anlegen</a>
+      }
+    </div>
+  }
+
+  @if (!loading && filteredKlienten.length > 0) {
+    <div class="klient-cards">
+      @for (klient of filteredKlienten; track klient.id) {
+        <div class="klient-card" [class.has-warning]="hasUeberfaelligeFristen(klient)">
+          <div class="klient-header">
+            <div class="klient-name">
+              {{ klient.vorname }} {{ klient.familienname }}
+            </div>
+            @if (hasUeberfaelligeFristen(klient)) {
+              <span class="warning-badge">!</span>
+            }
+          </div>
+
+          <div class="klient-info">
+            <div class="info-row">
+              <span class="label">Adresse:</span>
+              <span>{{ klient.strasse }} {{ klient.hausnummer }}, {{ klient.plz }} {{ klient.ort }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Miete:</span>
+              <span>{{ klient.gesamtmiete | currency:'EUR' }}</span>
+            </div>
+            @if (klient.einkommenBrutto) {
+              <div class="info-row">
+                <span class="label">Einkommen:</span>
+                <span>{{ klient.einkommenBrutto | currency:'EUR' }} / Monat</span>
+              </div>
+            }
+            <div class="info-row">
+              <span class="label">Fristen:</span>
+              <span [class.text-warning]="getOffeneFristen(klient) > 0">
+                {{ getOffeneFristen(klient) }} offen
+              </span>
+            </div>
+          </div>
+
+          <div class="klient-actions">
+            <a [routerLink]="['/klienten', klient.id]" class="btn btn-small">Bearbeiten</a>
+            <a [routerLink]="['/klienten', klient.id, 'fristen']" class="btn btn-small btn-outline">Fristen</a>
+            <button class="btn btn-small btn-danger" (click)="deleteKlient(klient)">Löschen</button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

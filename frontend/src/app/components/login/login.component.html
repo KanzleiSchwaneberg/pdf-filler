@@ -1,0 +1,51 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <h1>Wohngeld Automation</h1>
+      <p>Bitte melden Sie sich an</p>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" class="login-form">
+      @if (error) {
+        <div class="error-message">
+          {{ error }}
+        </div>
+      }
+
+      <div class="form-group">
+        <label for="username">Benutzername</label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          [(ngModel)]="username"
+          [disabled]="loading"
+          placeholder="Benutzername eingeben"
+          autocomplete="username"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Passwort</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          [(ngModel)]="password"
+          [disabled]="loading"
+          placeholder="Passwort eingeben"
+          autocomplete="current-password"
+        />
+      </div>
+
+      <button type="submit" [disabled]="loading" class="login-button">
+        @if (loading) {
+          <span class="spinner"></span>
+          Anmeldung...
+        } @else {
+          Anmelden
+        }
+      </button>
+    </form>
+  </div>
+</div>

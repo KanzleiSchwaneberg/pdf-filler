@@ -1,0 +1,84 @@
+<div class="dashboard">
+  <h1>Dashboard</h1>
+
+  @if (loading) {
+    <div class="loading">Laden...</div>
+  }
+
+  @if (error) {
+    <div class="error">{{ error }}</div>
+  }
+
+  @if (dashboard && !loading) {
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value">{{ dashboard.aktiveKlienten }}</div>
+        <div class="stat-label">Aktive Klienten</div>
+        <a routerLink="/klienten" class="stat-link">Alle anzeigen</a>
+      </div>
+
+      <div class="stat-card warning" [class.highlight]="dashboard.fristenUeberfaellig > 0">
+        <div class="stat-value">{{ dashboard.fristenUeberfaellig }}</div>
+        <div class="stat-label">Überfällige Fristen</div>
+      </div>
+
+      <div class="stat-card" [class.highlight]="dashboard.fristenFaelligDieseWoche > 0">
+        <div class="stat-value">{{ dashboard.fristenFaelligDieseWoche }}</div>
+        <div class="stat-label">Fällig diese Woche</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-value">{{ dashboard.fristenFaelligDiesenMonat }}</div>
+        <div class="stat-label">Fällig diesen Monat</div>
+      </div>
+
+      <div class="stat-card info" [class.highlight]="dashboard.erinnerungenOffen > 0">
+        <div class="stat-value">{{ dashboard.erinnerungenOffen }}</div>
+        <div class="stat-label">Offene Erinnerungen</div>
+      </div>
+
+      <div class="stat-card" [class.highlight]="dashboard.klientenMitUnvollstaendigenDaten > 0">
+        <div class="stat-value">{{ dashboard.klientenMitUnvollstaendigenDaten }}</div>
+        <div class="stat-label">Unvollständige Daten</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <h2>Anstehende Fristen (14 Tage)</h2>
+        <a routerLink="/klienten" class="btn btn-primary">+ Neuer Klient</a>
+      </div>
+
+      @if (faelligeFristen.length === 0) {
+        <div class="empty-state">
+          Keine anstehenden Fristen in den nächsten 14 Tagen.
+        </div>
+      } @else {
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Fällig am</th>
+              <th>Typ</th>
+              <th>Status</th>
+              <th>Beschreibung</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (frist of faelligeFristen; track frist.id) {
+              <tr>
+                <td>{{ frist.faelligAm }}</td>
+                <td>{{ getTypLabel(frist.typ) }}</td>
+                <td>
+                  <span class="status-badge" [class]="getStatusClass(frist.status)">
+                    {{ getStatusLabel(frist.status) }}
+                  </span>
+                </td>
+                <td>{{ frist.beschreibung || '-' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+  }
+</div>

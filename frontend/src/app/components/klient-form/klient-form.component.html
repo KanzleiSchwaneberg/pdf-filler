@@ -1,0 +1,228 @@
+<div class="klient-form">
+  <div class="header">
+    <h1>{{ isEditMode ? 'Klient bearbeiten' : 'Neuer Klient' }}</h1>
+    <a routerLink="/klienten" class="btn btn-outline">Zurück</a>
+  </div>
+
+  @if (loading) {
+    <div class="loading">Laden...</div>
+  }
+
+  @if (error) {
+    <div class="message error">{{ error }}</div>
+  }
+
+  @if (successMessage) {
+    <div class="message success">{{ successMessage }}</div>
+  }
+
+  @if (vollstaendigkeit && isEditMode) {
+    <div class="vollstaendigkeit" [class.complete]="vollstaendigkeit.vollstaendig">
+      <div class="progress-bar">
+        <div class="progress" [style.width.%]="vollstaendigkeit.prozentVollstaendig"></div>
+      </div>
+      <div class="progress-text">
+        {{ vollstaendigkeit.prozentVollstaendig }}% vollständig
+        @if (!vollstaendigkeit.vollstaendig) {
+          <span class="missing">
+            - Fehlend: {{ vollstaendigkeit.fehlendeFelder.join(', ') }}
+          </span>
+        }
+      </div>
+    </div>
+  }
+
+  @if (!loading) {
+    <form (ngSubmit)="onSubmit()" #form="ngForm">
+      <!-- Stammdaten -->
+      <section class="form-section">
+        <h2>Stammdaten</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="vorname">Vorname *</label>
+            <input type="text" id="vorname" [(ngModel)]="klient.vorname" name="vorname" required />
+          </div>
+          <div class="form-group">
+            <label for="familienname">Familienname *</label>
+            <input type="text" id="familienname" [(ngModel)]="klient.familienname" name="familienname" required />
+          </div>
+          <div class="form-group">
+            <label for="geburtsdatum">Geburtsdatum *</label>
+            <input type="date" id="geburtsdatum" [(ngModel)]="klient.geburtsdatum" name="geburtsdatum" required />
+          </div>
+          <div class="form-group">
+            <label for="geschlecht">Geschlecht *</label>
+            <select id="geschlecht" [(ngModel)]="klient.geschlecht" name="geschlecht" required>
+              @for (opt of geschlechtOptions; track opt.value) {
+                <option [value]="opt.value">{{ opt.label }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="familienstand">Familienstand *</label>
+            <select id="familienstand" [(ngModel)]="klient.familienstand" name="familienstand" required>
+              @for (opt of familienstandOptions; track opt.value) {
+                <option [value]="opt.value">{{ opt.label }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="erwerbsstatus">Erwerbsstatus *</label>
+            <select id="erwerbsstatus" [(ngModel)]="klient.erwerbsstatus" name="erwerbsstatus" required>
+              @for (opt of erwerbsstatusOptions; track opt.value) {
+                <option [value]="opt.value">{{ opt.label }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="telefon">Telefon</label>
+            <input type="tel" id="telefon" [(ngModel)]="klient.telefon" name="telefon" />
+          </div>
+          <div class="form-group">
+            <label for="email">E-Mail</label>
+            <input type="email" id="email" [(ngModel)]="klient.email" name="email" />
+          </div>
+        </div>
+      </section>
+
+      <!-- Adresse -->
+      <section class="form-section">
+        <h2>Adresse</h2>
+        <div class="form-grid">
+          <div class="form-group flex-2">
+            <label for="strasse">Straße *</label>
+            <input type="text" id="strasse" [(ngModel)]="klient.strasse" name="strasse" required />
+          </div>
+          <div class="form-group">
+            <label for="hausnummer">Hausnummer *</label>
+            <input type="text" id="hausnummer" [(ngModel)]="klient.hausnummer" name="hausnummer" required />
+          </div>
+          <div class="form-group">
+            <label for="plz">PLZ *</label>
+            <input type="text" id="plz" [(ngModel)]="klient.plz" name="plz" required maxlength="5" />
+          </div>
+          <div class="form-group flex-2">
+            <label for="ort">Ort *</label>
+            <input type="text" id="ort" [(ngModel)]="klient.ort" name="ort" required />
+          </div>
+        </div>
+      </section>
+
+      <!-- Wohnung & Miete -->
+      <section class="form-section">
+        <h2>Wohnung & Miete</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="wohnflaecheQm">Wohnfläche (m²) *</label>
+            <input type="number" id="wohnflaecheQm" [(ngModel)]="klient.wohnflaecheQm" name="wohnflaecheQm" required min="1" />
+          </div>
+          <div class="form-group">
+            <label for="wohnverhaeltnis">Wohnverhältnis</label>
+            <select id="wohnverhaeltnis" [(ngModel)]="klient.wohnverhaeltnis" name="wohnverhaeltnis">
+              @for (opt of wohnverhaeltnisOptions; track opt.value) {
+                <option [value]="opt.value">{{ opt.label }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="gesamtmiete">Gesamtmiete (€) *</label>
+            <input type="number" id="gesamtmiete" [(ngModel)]="klient.gesamtmiete" name="gesamtmiete" required min="0" step="0.01" />
+          </div>
+          <div class="form-group">
+            <label for="heizkosten">Heizkosten (€)</label>
+            <input type="number" id="heizkosten" [(ngModel)]="klient.heizkosten" name="heizkosten" min="0" step="0.01" />
+          </div>
+        </div>
+      </section>
+
+      <!-- Einkommen -->
+      <section class="form-section">
+        <h2>Einkommen</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="einkommensart">Einkommensart</label>
+            <input type="text" id="einkommensart" [(ngModel)]="klient.einkommensart" name="einkommensart"
+                   placeholder="z.B. Erwerbsminderungsrente" />
+          </div>
+          <div class="form-group">
+            <label for="einkommenBrutto">Bruttoeinkommen (€)</label>
+            <input type="number" id="einkommenBrutto" [(ngModel)]="klient.einkommenBrutto" name="einkommenBrutto" min="0" step="0.01" />
+          </div>
+          <div class="form-group checkbox-group">
+            <label>
+              <input type="checkbox" [(ngModel)]="klient.zahltKrankenPflegeversicherung" name="zahltKrankenPflegeversicherung" />
+              Zahlt Kranken-/Pflegeversicherung
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bankverbindung -->
+      <section class="form-section">
+        <h2>Bankverbindung</h2>
+        <div class="form-grid">
+          <div class="form-group flex-2">
+            <label for="iban">IBAN</label>
+            <input type="text" id="iban" [(ngModel)]="klient.iban" name="iban" placeholder="DE..." />
+          </div>
+          <div class="form-group">
+            <label for="bankName">Bank</label>
+            <input type="text" id="bankName" [(ngModel)]="klient.bankName" name="bankName" />
+          </div>
+          <div class="form-group">
+            <label for="kontoinhaberName">Kontoinhaber</label>
+            <input type="text" id="kontoinhaberName" [(ngModel)]="klient.kontoinhaberName" name="kontoinhaberName" />
+          </div>
+        </div>
+      </section>
+
+      <!-- Zusatzinformationen -->
+      <section class="form-section">
+        <h2>Zusatzinformationen</h2>
+        <div class="form-grid">
+          <div class="form-group checkbox-group">
+            <label>
+              <input type="checkbox" [(ngModel)]="klient.schwerbehinderungOderPflege" name="schwerbehinderungOderPflege" />
+              Schwerbehinderung / Pflegegrad
+            </label>
+          </div>
+          @if (klient.schwerbehinderungOderPflege) {
+            <div class="form-group">
+              <label for="pflegegrad">Pflegegrad</label>
+              <input type="text" id="pflegegrad" [(ngModel)]="klient.pflegegrad" name="pflegegrad" placeholder="z.B. PG 2" />
+            </div>
+          }
+          <div class="form-group">
+            <label for="wohngeldnummer">Wohngeldnummer (bei Weiterbewilligung)</label>
+            <input type="text" id="wohngeldnummer" [(ngModel)]="klient.wohngeldnummer" name="wohngeldnummer" />
+          </div>
+          <div class="form-group full-width">
+            <label for="notizen">Notizen</label>
+            <textarea id="notizen" [(ngModel)]="klient.notizen" name="notizen" rows="3"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- Aktionen -->
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" [disabled]="saving || !form.valid">
+          {{ saving ? 'Speichern...' : 'Speichern' }}
+        </button>
+
+        <button type="button" class="btn btn-outline" (click)="saveAndGoBack()" [disabled]="saving || !form.valid">
+          Speichern & Zurück
+        </button>
+
+        @if (isEditMode && vollstaendigkeit?.vollstaendig) {
+          <button type="button" class="btn btn-success" (click)="generateEntwurf()" [disabled]="generatingPdf">
+            {{ generatingPdf ? 'Generiere PDF...' : 'PDF erstellen & herunterladen' }}
+          </button>
+        }
+
+        @if (isEditMode && vollstaendigkeit && !vollstaendigkeit.vollstaendig) {
+          <span class="hint">PDF-Erstellung erst bei 100% Vollständigkeit möglich</span>
+        }
+      </div>
+    </form>
+  }
+</div>

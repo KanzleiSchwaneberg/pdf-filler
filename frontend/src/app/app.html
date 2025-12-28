@@ -1,0 +1,44 @@
+@if (authService.isLoggedIn()) {
+  <div class="app-container">
+    <nav class="sidebar">
+      <div class="logo">
+        <h1>Wohngeld</h1>
+        <span class="subtitle">Automation</span>
+      </div>
+
+      <ul class="nav-links">
+        <li>
+          <a routerLink="/dashboard" routerLinkActive="active">
+            <span class="icon">📊</span>
+            Dashboard
+          </a>
+        </li>
+        <li>
+          <a routerLink="/klienten" routerLinkActive="active">
+            <span class="icon">👥</span>
+            Klienten
+          </a>
+        </li>
+      </ul>
+
+      <div class="nav-footer">
+        <div class="user-info">
+          <span class="username">{{ authService.getUsername() }}</span>
+        </div>
+        <button class="logout-btn" (click)="logout()">
+          <span class="icon">🚪</span>
+          Abmelden
+        </button>
+        <a href="http://localhost:8080/swagger-ui.html" target="_blank" class="api-link">
+          API Docs
+        </a>
+      </div>
+    </nav>
+
+    <main class="main-content">
+      <router-outlet />
+    </main>
+  </div>
+} @else {
+  <router-outlet />
+}
