@@ -1,0 +1,123 @@
+openapi: 3.1.0
+info:
+  title: Wohngeld-Automation API
+  summary: API fuer automatische Wohngeldantraege
+  version: 2.0.0
+
+servers:
+  - url: http://localhost:8080
+
+tags:
+  - name: Wohngeld v2
+  - name: Wohngeld Legacy
+  - name: System
+
+paths:
+  /api/v2/fill-pdf:
+    post:
+      tags: [Wohngeld v2]
+      summary: PDF ausfuellen (v2)
+      operationId: fillPdfV2
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              \: '#/components/schemas/WohngeldAntragRequestDTO'
+      responses:
+        '200':
+          description: PDF erstellt
+          content:
+            application/json:
+              schema:
+                \: '#/components/schemas/ApiResponsePdfResult'
+
+  /api/v2/data/sample:
+    get:
+      tags: [Wohngeld v2]
+      summary: Beispieldaten (v2)
+      operationId: getSampleDataV2
+      responses:
+        '200':
+          description: Beispieldaten
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WohngeldAntragRequestDTO'
+
+  /api/fill-pdf:
+    post:
+      tags: [Wohngeld Legacy]
+      summary: PDF ausfuellen (Legacy)
+      deprecated: true
+      operationId: fillPdf
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WohngeldAntragRequestLegacy'
+      responses:
+        '200':
+          description: PDF erstellt
+
+  /api/data/sample:
+    get:
+      tags: [Wohngeld Legacy]
+      summary: Beispieldaten (Legacy)
+      deprecated: true
+      operationId: getSampleData
+      responses:
+        '200':
+          description: Beispieldaten
+
+  /api/:
+    get:
+      tags: [System]
+      summary: API Info
+      operationId: getApiInfo
+      responses:
+        '200':
+          description: API-Info
+
+  /api/health:
+    get:
+      tags: [System]
+      summary: Health Check
+      operationId: healthCheck
+      responses:
+        '200':
+          description: OK
+
+  /api/fields:
+    get:
+      tags: [System]
+      summary: PDF-Felder
+      operationId: getFormFields
+      responses:
+        '200':
+          description: Felder
+
+  /api/analyze:
+    get:
+      tags: [System]
+      summary: Analysieren
+      operationId: analyzePdf
+      responses:
+        '200':
+          description: Analyse
+
+  /api/download/{filename}:
+    get:
+      tags: [System]
+      summary: Download
+      operationId: downloadPdf
+      parameters:
+        - name: filename
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: PDF
